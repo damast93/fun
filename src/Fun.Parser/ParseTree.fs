@@ -1,9 +1,9 @@
 ﻿namespace Fun.Parser
 
-type internal Ident    = Fun.Syntax.Ident
-type internal Typename = Fun.Syntax.Typename
+type Ident    = string
+type Typename = string
 
-type internal Term = 
+type Term = 
     | Unit
     | Int    of int
     | List   of Term
@@ -18,8 +18,8 @@ type internal Term =
     | Let         of Ident * Ident list * Term * Term
     | LetRec      of Ident * Ident list * Term * Term
 
-type internal Declaration = 
+type Declaration = 
     | Fun  of Ident * Ident list * Term
     | Data of Typename
 
-type internal Program = Program of Declaration list
+type Program = Program of Declaration list

@@ -53,8 +53,8 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="ParseTree.fs" />
     <Compile Include="BasicParser.fs" />
-    <Content Include="packages.config" />
     <Compile Include="Parser.fs" />
+    <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FParsec">
