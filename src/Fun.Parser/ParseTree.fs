@@ -6,13 +6,13 @@ type Typename = string
 type Term = 
     | Unit
     | Int    of int
-    | List   of Term
     | Float  of float
+    | List   of Term list
     | String of string
     
     | Identifier  of Ident
     | Lambda      of Ident list * Term
-    | Application of Term * Term
+    | Application of Term list
     | Sequence    of Term list
     | Delay       of Term
     | Let         of Ident * Ident list * Term * Term
