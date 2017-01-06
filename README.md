@@ -13,9 +13,9 @@ The implementation prioritizes correctness and education value over anything els
 * user-defined datatypes
 * tail-call elimination
 
-Roughly, *Fun* is strict untyped lambda calculus with some mostly syntactic extensions and ML-inspired look. *Fun* is not purely functional, so side effects are always possible. There is no static typechecking but types are distinguished strongly at runtime.
+Roughly, *Fun* is strict untyped lambda calculus with some mostly syntactic extensions and an ML-inspired look. *Fun* is not purely functional, so side effects are always possible. There is no static typechecking but types are distinguished strongly at runtime.
 
-Both `funny` and the first-stage of `func` are implemented in F#. The second-stage, eventually, will be written in *Fun* itself.
+Both `funny` and the first-stage of `func` are implemented in F#. The second-stage, eventually, will be written in *Fun* itself. Due to its simplicity, *Fun* can be easily cross-compiled to languages like JavaScript or Lua.
 
 # A demo program
 
@@ -45,24 +45,25 @@ Both `funny` and the first-stage of `func` are implemented in F#. The second-sta
 
 ## Functional basics
 
-The core-part of *Fun* is minimalistic and held super easy. The basic constructions come from lambda calculus, creating anonymous functions with full currying and scoping rules as usual, e.g.
+The core-part of *Fun* is minimalistic and held super easy. The most basic construction comes from lambda calculus: We can create anonymous functions with full support for currying and lexical scope like that
 
-    \x . x, \f x . f x
+    \x . print x, \f x . f x
 
-Function application can be written without brackets, associating to the left. Expressions are evaluated from left to right.
+Function application can be written without brackets, associating to the left. Expressions are evaluated from left to right. Variables and functions (there is no distinction) can be bound using `let` like in
 
-
- Variables and functions (the same thing!) can be bound using `let` like in
-
-    let k = 5 in ...
+    let k = 5 in k // evaluates to 5
 
 and
 
-    let fact n = product (range 1 n) in fact k
+    let fact n = product (range 1 n) in fact 5 // evaluates to 120
 
 For recursive nested functions, there is `letrec`
 
-    letrec f x = f x in ...
+    letrec fact n = 
+        if (< n 1) 
+            { 1 }
+            {  * n (fact (- n 1)) }
+    in fact 5
 
 Top-Level values can be defined using the keyword `fun`
 
@@ -72,7 +73,11 @@ Recursion is automatically allowed here. The syntax is free form, excess whitesp
 
     fun plus = +
 
-is perfectly fine. On the downside, there is no inherent support for infix operator placement.
+is perfectly fine. On the downside, this means that there is no inherent support for infix operator placement. Comments are C-style, i.e.
+
+    // Comment-line
+    /* block
+       comment */
 
 ## Datatypes
 
@@ -86,7 +91,7 @@ All further data structures can be created from these (see [Church encoding](htt
 	fun false = Bool (\x y . y)
 
     fun if cond truepart falsepart = 
-        (Bool? cond) truepart falsepart ()
+        (Bool! cond) truepart falsepart ()
 
     fun main = {
 		if true 
@@ -98,15 +103,15 @@ Following the minimalist philosophy, we have defined boolean values and conditio
 
     data Bool
 
-does the following things for us: It defines a function `Bool` that wraps any object into a new dedicated user-object of type `Bool`. And it allows us to unwrap again using `Bool?`, giving us back the underlying object. As we wanted
+does the following things for us: It defines a function `Bool` that wraps any object into a new dedicated user-object of type `Bool`. And it allows us to unwrap again using `Bool!`, giving us back the underlying object or raising an error if the types don't fit. Also, we can typecheck using `Bool?`. As we wanted
 
     true 1 2 
 
-results in an error, as `true` not a callable `lambda` but just a `Bool` object.     
+results in an error, as `true` not a callable `lambda` but just a `Bool` object. For the core types, similar type-checking functions `int!`, `unit?` etc. exist but unwrap nothing, just returning the very same object instead.
 
 # Sweet sweet extensions
 
-That's it, that's all the core features we need. The rest is syntactic sugar just to make life easier and prettier.
+That's it, that's all the core features we need. The rest is syntactic sugar for making life easier and prettier.
 
 ## Delay
 
@@ -114,11 +119,15 @@ For convenience, there is a syntax for delayed computation
 
     { computation }
 
-which is equivalent to `\() . computation`. We have already seen that syntax in combination with `if`, and it proves invaluable for defining control structures.
+which is equivalent to 
+
+    \$ . unit! $; computation
+
+We have already seen that syntax in combination with `if`, and it proves invaluable for defining control structures.
 
 ## Lists and strings
 
-Strings are defined in the standard library as a user-type `String`, building on top of arrays of `int`s. There is syntactic support for them though
+Strings are defined in the standard library as a user-type `String`, building on top of ASCII arrays of `int`s. There is syntactic support for them though via
 
     "Hello, World"
 
@@ -145,13 +154,15 @@ Including other files
 
     include "std.fun"
 
-## Sugar all the way
+Cyclic references are forbidden
 
-I lied calling `let` a core-feature. We can be more minimalist than that. Even that is just sugar for some lambda magic. For example instead of 
+# Sugar all the way
+
+I lied calling `let` a core-feature. We can be more minimalist than that. Even that is just sugar for some lambda magic. Take e.g. the expression
 
     let f x = x + 1 in f 41
 
-we just rewrite it as
+We can just rewrite that as
 
     (\f . f 41) (\x . x + 1)
 
@@ -159,7 +170,7 @@ Even `letrec` can be expressed that way (in a trickier fashion), and of course
 
     \x y . function-body
 
-is the same as the double-lambda
+is via currying the same as the double-lambda
 
     \x . \y . function-body
 
