@@ -65,11 +65,11 @@ For recursive nested functions, there is `letrec`
             {  * n (fact (- n 1)) }
     in fact 5
 
-Top-Level values can be defined using the keyword `fun`
+Top-Level definitions can be made with the keyword `fun`
 
-    fun isPrime n = forall (\d . == 0 (mod n d)) (range 2 (- n 1))
+    fun isPrime n = forall (\d . != 0 (mod n d)) (range 2 (- n 1))
 
-Recursion is automatically allowed here. The syntax is free form, excess whitespace is insignificant and there is no distinction between function and operator names, so
+Recursion, including mutual recursion, is automatically allowed on top-level. *Fun*'s syntax is free form, excess whitespace is insignificant and there is no distinction between function and operator names, so
 
     fun plus = +
 

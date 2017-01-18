@@ -29,11 +29,11 @@ let parsec = new ParserCombinator()
 
 // Tokens 
 
-let keywords = [ "let"; "letrec"; "in"; "fun"; "data"; "="; "$"; "." ] |> Set.ofList
+let keywords = [ "let"; "letrec"; "in"; "fun"; "data"; "="; "." ] |> Set.ofList
 
 let ident = 
     attempt (parsec {
-        let fstDigitParser = isNoneOf "\(){}[];,.\"0123456789 \t\r\n"
+        let fstDigitParser = isNoneOf "\(){}[];,.$\"0123456789 \t\r\n"
         let! str = many1Satisfy2 fstDigitParser (isNoneOf "\()[].,;{}\" \t\r\n") .>> ws
         if keywords |> Set.contains str
           then return! fail("Reserved keyword")

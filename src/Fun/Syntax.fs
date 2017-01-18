@@ -5,15 +5,17 @@ type Typename = string
 
 type Expression = 
     | Unit
-    | Int         of int
-    | Float       of float
-    | String      of string
+    | Int            of int
+    | Float          of float
+    | String         of string
 
-    | Var         of Ident
-    | Global      of Ident
-    | Lambda      of Ident * Expression
-    | Application of Expression * Expression
+    | Identifier     of Ident
+    | CoreIdentifier of Ident
+    | Lambda         of Ident * Expression
+    | Application    of Expression * Expression
+    | LetIn          of Ident * Expression * Expression
+    | LetRecIn       of Ident * Expression * Expression
 
-type Declaration = Fun of Ident * Expression
+type Definition = Fun of Ident * Expression
 
-type Program = { usertypes : Typename list; declarations : Declaration list }
+type Program = { usertypes : Typename list; defintions : Definition list }
