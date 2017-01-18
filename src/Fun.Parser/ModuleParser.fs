@@ -24,7 +24,7 @@ let dataDefinition = parsec {
 
 let definition = funDefinition <|> dataDefinition
 
-let moduleparser = many definition
+let moduleParser = many definition
 //
 //let isFun = function Fun(_) -> true | _ -> false
 //let isData = function Data(_) -> true | _ -> false

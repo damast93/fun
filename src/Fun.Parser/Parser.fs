@@ -9,8 +9,13 @@ open Fun.Parser.ModuleParser
 type ParserResult<'a> = 
     | Successful of 'a
     | Error of string
-    
-let parse s = 
-    match run (ws >>. moduleparser .>> eof) s with
+
+let internal wrap parser s = 
+    match run parser s with
     | Success(r,_,_) -> Successful(r)
     | Failure(s,_,_ ) -> Error(s)
+
+let internal wrapTight parser = wrap (ws >>. parser .>> eof)
+
+let parseTerm s = wrapTight term s
+let parseModule s = wrapTight moduleParser s
