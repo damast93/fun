@@ -18,8 +18,8 @@ type Term =
     | Let         of Ident * Ident list * Term * Term
     | LetRec      of Ident * Ident list * Term * Term
 
-type Declaration = 
+type Definition = 
     | Fun  of Ident * Ident list * Term
     | Data of Typename
 
-type Program = Program of Declaration list
+type Module = Module of Definition list

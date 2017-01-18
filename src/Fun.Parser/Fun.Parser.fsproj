@@ -52,7 +52,9 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="ParseTree.fs" />
-    <Compile Include="BasicParser.fs" />
+    <Compile Include="ParserConfig.fs" />
+    <Compile Include="TermParser.fs" />
+    <Compile Include="ModuleParser.fs" />
     <Compile Include="Parser.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
