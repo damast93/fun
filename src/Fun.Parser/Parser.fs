@@ -19,8 +19,8 @@ let internal wrap parser s =
 
 let internal wrapTight parser = wrap (ws >>. parser .>> eof)
 
-let parseTerm s = wrapTight term s
-let parseModule s = wrapTight moduleParser s
+let parseTermRaw(s) = wrapTight term s
+let parseModuleRaw(s) = wrapTight moduleParser s
 
-let parseExpression s = wrapTight (term |>> simplifyTerm) s
-let parseModuleSimplified s = wrapTight (moduleParser |>> simplifyModule) s
+let parseExpression(s) = wrapTight (term |>> simplifyTerm) s
+let parseModule(s) = wrapTight (moduleParser |>> simplifyModule) s

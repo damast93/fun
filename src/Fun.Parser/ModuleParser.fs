@@ -35,10 +35,11 @@ let findDuplicate keys =
    |> List.map (fun (k,s) -> k)
    |> List.tryHead
 
+// TODO Spot redefinitions *while* parsing
 let moduleParser = parsec {
     let! definitions = many definition
     
     match findDuplicate (List.map nameOf definitions) with
-    | Some(multiple) -> return! failFatally (sprintf "Invalid redefinition of fun `%s`" multiple)
+    | Some(multiple) -> return! failFatally (sprintf "Invalid redefinition of `%s`" multiple)
     | None -> return Module(definitions)
 }
