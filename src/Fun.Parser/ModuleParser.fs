@@ -24,28 +24,21 @@ let dataDefinition = parsec {
 
 let definition = funDefinition <|> dataDefinition
 
-let moduleParser = many definition
-//
-//let isFun = function Fun(_) -> true | _ -> false
-//let isData = function Data(_) -> true | _ -> false
-//
-//let findDuplicates keys = 
-//      keys 
-//   |> List.groupBy id
-//   |> List.filter (fun (k,ks) -> List.length ks > 1)
-//   |> List.map (fun (k,s) -> k)
-//   |> List.tryHead
-//
-//
-//let validateModule definitions = 
-//    let funDecls = List.filter isFun definitions
-//    let dataDecls = List.filter isData definitions
-//
-//    match findDuplicates (List.map (fun (Fun(fn,_,_)) -> fn) funDecls) with
-//    | Some(multiple) -> failwithf "Invalid redefinition of fun `%s`" multiple
-//    | None -> ()
-//
-//    match findDuplicates (List.map (fun (Data(dt)) -> dt) dataDecls) with
-//    | Some(multiple) -> failwithf "Invalid redefinition of datatype `%s`" multiple
-//    | None -> ()
+// Parse module, recognize illegal redefinitions
 
+let nameOf = function Fun(n,_,_) | Data(n) -> n 
+
+let findDuplicate keys = 
+      keys 
+   |> List.groupBy id
+   |> List.filter (fun (k,ks) -> List.length ks > 1)
+   |> List.map (fun (k,s) -> k)
+   |> List.tryHead
+
+let moduleParser = parsec {
+    let! definitions = many definition
+    
+    match findDuplicate (List.map nameOf definitions) with
+    | Some(multiple) -> return! failFatally (sprintf "Invalid redefinition of fun `%s`" multiple)
+    | None -> return Module(definitions)
+}

@@ -8,14 +8,16 @@ type Expression =
     | Int            of int
     | Float          of float
     | String         of string
-
-    | Identifier     of Ident
+    
     | CoreIdentifier of Ident
+    | Identifier     of Ident
+
     | Lambda         of Ident * Expression
     | Application    of Expression * Expression
+    | Sequence       of Expression list
     | LetIn          of Ident * Expression * Expression
     | LetRecIn       of Ident * Expression * Expression
 
 type Definition = Fun of Ident * Expression
 
-type Program = { usertypes : Typename list; defintions : Definition list }
+type Module = { usertypes : Typename list; definitions : Definition list }

@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="ParseTree.fs" />
+    <Compile Include="Desugar.fs" />
     <Compile Include="ParserConfig.fs" />
     <Compile Include="TermParser.fs" />
     <Compile Include="ModuleParser.fs" />
