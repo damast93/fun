@@ -12,6 +12,7 @@ let runLine ln =
     | Parser.Successful(expr) ->
         let context = Context.empty
         let result = Evaluation.eval context expr
+        printfn "%A" expr
         printfn "%A\n" result
 
 let rec repl() = 

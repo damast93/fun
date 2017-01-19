@@ -11,14 +11,14 @@ open FParsec
 let typename = many1Chars letter .>> ws
 
 let funDefinition = parsec {
-    let! lhs = strws "fun" >>. arglist .>> strws "="
+    let! lhs = strws1 "fun" >>. arglist .>> strws "="
     let! rhs = lambda <|> application
     match lhs with
     | f::args -> return Fun(f,args,rhs)
 }
 
 let dataDefinition = parsec {
-    let! name = strws "data" >>. typename
+    let! name = strws1 "data" >>. typename
     return Data(name)
 }
 

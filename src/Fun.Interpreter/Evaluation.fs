@@ -19,7 +19,11 @@ let rec eval (context : Context) = function
         let newcontext = Context.bind v lhsvalue context
         eval newcontext body
 
-    | LetRecIn(v,lhs,body) -> failwith "Not implemented" // TODO
+    | LetRecIn(v,lhs,body) -> 
+        let dummyContext = Context.bind v (V.Unit) context
+        let lhsvalue = eval dummyContext lhs
+        Context.updateRef v lhsvalue dummyContext
+        eval dummyContext body
 
     | Sequence(exprs) ->
         exprs

@@ -50,23 +50,23 @@ let application =
         | ls -> Application(ls)
 
 let letExpr = parsec {
-    let! lhs = strws "let" >>. arglist .>> strws "="
-    let! rhs = (lambda <|> application) .>> strws "in"
+    let! lhs = strws1 "let" >>. arglist .>> strws "="
+    let! rhs = (lambda <|> application) .>> strws1 "in"
     let! body = term
     match lhs with
     | f::args -> return Let(f,args,rhs,body)
 }
 
 let letRecExpr = parsec {
-    let! lhs = strws "letrec" >>. arglist .>> strws "="
-    let! rhs = (lambda <|> application) .>> strws "in"
+    let! lhs = strws1 "letrec" >>. arglist .>> strws "="
+    let! rhs = (lambda <|> application) .>> strws1 "in"
     let! body = term
     match lhs with
-    | f::args -> return Let(f,args,rhs,body)
+    | f::args -> return LetRec(f,args,rhs,body)
 }
 
 let sequence =
-    sepBy1 (application <|> lambda <|> letExpr <|> letRecExpr) (strws ";") |>> function
+    sepBy1 (application <|> lambda <|> letRecExpr <|> letExpr) (strws ";") |>> function
         | [x] -> x
         | ls -> Sequence(ls)
 

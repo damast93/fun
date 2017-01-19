@@ -81,7 +81,7 @@ is perfectly fine. On the downside, this means that there is no inherent support
 
 ## Datatypes
 
-The core datatypes are `int`, `float`, `func`, `array` and `unit`. 
+The core datatypes are `int`, `float`, `function`, `array` and `unit`. 
 
 All further data structures can be created from these (see [Church encoding](https://en.wikipedia.org/wiki/Church_encoding)). This means that basically every object in *Fun* is in principle a callable function. In the absence of static typechecking, this has to lead to terribly confusing error scenarios. Therefore, *Fun* allows the wrapping of data into user-datatypes.
 
@@ -107,7 +107,7 @@ does the following things for us: It defines a function `Bool` that wraps any ob
 
     true 1 2 
 
-results in an error, as `true` not a callable `func` but just a `Bool` object. For the core types, similar type-checking functions `int!`, `unit?` etc. exist but unwrap nothing, just returning the very same object instead.
+results in an error, as `true` not a callable `function` but just a `Bool` object. For the core types, similar type-checking functions `int!`, `unit?` etc. exist but unwrap nothing, just returning the very same object instead.
 
 # Sweet sweet extensions
 

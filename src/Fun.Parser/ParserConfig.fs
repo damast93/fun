@@ -18,7 +18,9 @@ let multiLineComment =
 
 let whitespace = lineComment <|> multiLineComment <|> spaceStr
 let ws = skipMany whitespace
+
 let strws st = pstring st .>> ws
+let strws1 st = pstring st >>. whitespace >>. ws
 
 // Expression builder
 let parsec = new ParserCombinator()
