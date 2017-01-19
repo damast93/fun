@@ -9,7 +9,7 @@ type Expression =
     | Float          of float
     | String         of string
     
-    | CoreIdentifier of Ident
+    | Definition     of Ident
     | Identifier     of Ident
 
     | Lambda         of Ident * Expression

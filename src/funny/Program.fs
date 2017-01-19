@@ -5,12 +5,14 @@ open Fun.Parser
 open Fun.Interpreter 
 
 let runLine ln = 
-    let parseResult = Parser.parseTermRaw ln
+    let parseResult = Parser.ParseExpression ln
     match parseResult with
     | Parser.Error(err) ->
         printfn "%s\n" err
     | Parser.Successful(expr) ->
-        printfn "%A\n" expr
+        let context = Context.empty
+        let result = Evaluation.eval context expr
+        printfn "%A\n" result
 
 let rec repl() = 
     printf "> "
@@ -22,7 +24,7 @@ let rec repl() =
 let loadFile(fn) = 
     printfn "[Loading %s]" fn
     let contents = System.IO.File.ReadAllText(fn)
-    match Parser.parseModule contents with
+    match Parser.ParseModule contents with
     | Parser.Error(err) ->
         printfn "%s\n" err
     | Parser.Successful(mdl) -> 
