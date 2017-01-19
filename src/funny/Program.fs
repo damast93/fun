@@ -5,7 +5,7 @@ open Fun.Parser
 open Fun.Interpreter 
 
 let runLine ln = 
-    let parseResult = Parser.ParseExpression ln
+    let parseResult = Parser.parseExpression ln
     match parseResult with
     | Parser.Error(err) ->
         printfn "%s\n" err
@@ -25,7 +25,7 @@ let rec repl() =
 let loadFile(fn) = 
     printfn "[Loading %s]" fn
     let contents = System.IO.File.ReadAllText(fn)
-    match Parser.ParseModule contents with
+    match Parser.parseModule contents with
     | Parser.Error(err) ->
         printfn "%s\n" err
     | Parser.Successful(mdl) -> 
