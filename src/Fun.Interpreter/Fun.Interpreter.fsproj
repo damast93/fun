@@ -44,7 +44,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Exceptions.fs" />
     <Compile Include="Context.fs" />
+    <Compile Include="Runtime.fs" />
     <Compile Include="Evaluation.fs" />
     <Compile Include="Interpreter.fs" />
   </ItemGroup>

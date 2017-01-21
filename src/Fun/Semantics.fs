@@ -18,3 +18,13 @@ type Value =
             | Array(arr) -> sprintf "<array[0..%i]>" (Array.length arr)
             | Func(f) -> sprintf "<function>"
             | UserType(x,typename) -> sprintf "<%s>" typename
+        
+        member this.Typename =
+            match this with
+            | Unit -> "unit"
+            | Int(_) -> "int"
+            | Float(_) -> "float"
+            | String(_) -> "array"
+            | Array(_) -> "array"
+            | Func(_) -> "function"
+            | UserType(v,t) -> t

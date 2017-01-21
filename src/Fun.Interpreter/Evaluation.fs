@@ -1,7 +1,8 @@
-﻿module Fun.Interpreter.Evaluation
+﻿module internal Fun.Interpreter.Evaluation
 
 open Fun.Syntax
 open Fun.Interpreter.Context
+open Fun.Interpreter.Exceptions
 
 type internal V = Fun.Semantics.Value
 
@@ -33,7 +34,7 @@ let rec eval (context : Context) = function
     | Application(fexpr, xexpr) ->
         let f = eval context fexpr
         let x = eval context xexpr
-        match f with
+        match ofType "function" f with
         | V.Func(impl) -> impl x
 
     | Lambda(v, body) ->

@@ -7,7 +7,7 @@ open FParsec
 
 // Parsing a whole module
 
-// TODO Work out a good definition of typenames
+// TODO Work out a good definition of typenames (Start with uppercase! (otherwise conflict with builtins)
 let typename = many1Chars letter .>> ws
 
 let funDefinition = parsec {

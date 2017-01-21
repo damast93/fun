@@ -7,6 +7,7 @@ open Fun.Parser.Config
 // Every parser will consume tailing insignificant whitespace (.>> ws)
 
 // Tokens 
+// TODO Allow definition of infix operators
 
 let keywords = [ "let"; "letrec"; "in"; "fun"; "data"; "="; "." ] |> Set.ofList
 

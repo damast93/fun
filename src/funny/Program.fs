@@ -4,42 +4,74 @@ open Fun
 open Fun.Parser
 open Fun.Interpreter 
 
-let runLine ln = 
-    let parseResult = Parser.parseExpression ln
-    match parseResult with
-    | Parser.Error(err) ->
-        printfn "%s\n" err
-    | Parser.Successful(expr) ->
-        let context = Context.empty
-        let result = Evaluation.eval context expr
-        printfn "%A" expr
-        printfn "%A\n" result
+type Interactive() = 
+    let interpreter = new Interpreter()
 
-let rec repl() = 
-    printf "> "
-    let ln = Console.ReadLine()
-    if (ln.Trim().ToLower() <> ":q") then
-        runLine ln
-        repl()
+    member this.LoadFile(fn) = 
+        printfn "[Loading %s ...]" fn
+        let contents = System.IO.File.ReadAllText(fn)
 
-let loadFile(fn) = 
-    printfn "[Loading %s]" fn
-    let contents = System.IO.File.ReadAllText(fn)
-    match Parser.parseModule contents with
-    | Parser.Error(err) ->
-        printfn "%s\n" err
-    | Parser.Successful(mdl) -> 
-        printfn "[Loaded %s, %i definitions, %i user types]" fn (List.length mdl.definitions) (List.length mdl.usertypes)
-    printfn ""
-    repl()
+        match Parser.parseModule contents with
+        | Parser.Error(err) ->
+            printfn "%s\n" err
+        | Parser.Successful(mdl) -> 
+            try
+                interpreter.LoadModule(mdl)
+                printfn "[Loaded %s, %i definitions, %i user types]" fn (List.length mdl.definitions) (List.length mdl.usertypes)
+            with ex ->
+                printfn "!> %s" (ex.Message)
+
+    member this.RunLine(line) =
+        match Parser.parseExpression line with
+        | Parser.Error(err) ->
+            printfn "%s\n" err
+        | Parser.Successful(expr) ->
+            let result = interpreter.Evaluate(expr)
+            printfn "%s" (result.ToString())
+
+    member this.Repl() = 
+        printf "\n> "
+        let line = Console.ReadLine()
+        if line.Trim().StartsWith(":") then
+            let option = line.Trim().Substring(1)
+            this.PerformOption(option)
+        else
+            try
+                this.RunLine(line)
+            with ex ->
+                printfn "!> %s" (ex.Message)
+            this.Repl()
+
+    member this.PerformOption(option) = 
+        match option with
+        | "q" -> () 
+        | "b" -> 
+            printfn "Types:\n%s\n" (String.concat ", " interpreter.UserTypes)
+            printfn "Globals:\n%s" (String.concat ", " interpreter.Definitions)
+            this.Repl()
+        | "l" | "m" ->
+            printfn "Load da shit"
+            this.Repl()
+        | _ ->
+            printfn "Unrecognized option"
+            this.Repl()
+
 
 let main() =
     let args = Environment.GetCommandLineArgs() 
+    let interactive = new Interactive()
+    printf "Funny - Fun interactive interpreter\n"
+
     match args with
-    | [|_|] -> repl()
-    | [|_; fn|] -> loadFile(fn)
+    | [|_|] ->
+        interactive.LoadFile("core.fun")
+        interactive.Repl()
+    | [|_; fn|] -> 
+        interactive.LoadFile("core.fun")
+        interactive.LoadFile(fn)
+        interactive.Repl()
     | _ -> 
         printfn "Unrecognized options ..."
-        repl()
+        interactive.Repl()
 
 main()
