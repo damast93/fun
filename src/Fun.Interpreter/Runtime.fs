@@ -1,87 +1,101 @@
 ﻿module Fun.Interpreter.Runtime
 
 open System
+open System.Reflection
+
 open Fun.Semantics
 open Fun.Interpreter.Exceptions
-
-// TODO apply reflection here
 
 type internal Builtin(fn : string) = 
     inherit Attribute()
     member this.Name = fn
 
-module Builtins = 
-    
-    let builtin_types = ["Bool"]
+type Builtins() = 
+    static member BuiltinTypes = ["Bool"]
+
+    static member GetBuiltins() = 
+        let props =
+            typeof<Builtins>.GetProperties()
+            |> Array.choose (fun pi ->
+                pi.CustomAttributes
+                |> Seq.tryFind (fun attr -> attr.AttributeType = typeof<Builtin>)
+                |> Option.map (fun attr -> pi, attr))
+        
+        props
+        |> Seq.map (fun (pi, attr) ->
+            let fn = unbox<string> attr.ConstructorArguments.[0].Value
+            let value = pi.GetValue(null) :?> Value
+            fn, value)
+        |> Map.ofSeq
 
     [<Builtin("true")>]
-    let bool_true = 
+    static member bool_true = 
         let church_true = Func(fun x -> Func(fun y -> x))
         UserType(church_true, "Bool")
     
     [<Builtin("false")>]
-    let bool_false = 
+    static member bool_false = 
         let church_false = Func(fun x -> Func(fun y -> y))
         UserType(church_false, "Bool")
 
-    let church b = if b then bool_true else bool_false
+    static member church b = if b then Builtins.bool_true else Builtins.bool_false
 
-    let typeConstructor typename = Func(fun v ->
+    static member typeConstructor typename = Func(fun v ->
             UserType(v, typename)
         )
 
-    let typeUnwrap typename = Func(function
+    static member typeUnwrap typename = Func(function
             | UserType(v, t) when t = typename -> v
             | v when v.Typename = typename -> v
             | v -> typeFail typename (v.Typename)
         )
 
-    let typeCheck typename = Func(fun v -> church (typename = v.Typename))
+    static member typeCheck t = Func(fun v -> Builtins.church (v.Typename = t))
         
     [<Builtin("unit!")>]
-    let unit_unwrap = typeUnwrap "unit"
+    static member unit_unwrap = Builtins.typeUnwrap "unit"
     
     [<Builtin("unit?")>]
-    let unit_check = typeCheck "unit"
+    static member unit_check = Builtins.typeCheck "unit"
 
     [<Builtin("int!")>]
-    let int_unwrap = typeUnwrap "int"
+    static member int_unwrap = Builtins.typeUnwrap "int"
     
     [<Builtin("int?")>]
-    let int_check = typeCheck "int"    
+    static member int_check = Builtins.typeCheck "int"    
     
     [<Builtin("float!")>]
-    let float_unwrap = typeUnwrap "float"
+    static member float_unwrap = Builtins.typeUnwrap "float"
     
     [<Builtin("float?")>]
-    let float_check = typeCheck "float"
+    static member float_check = Builtins.typeCheck "float"
     
     [<Builtin("function!")>]
-    let function_unwrap = typeUnwrap "function"
+    static member function_unwrap = Builtins.typeUnwrap "function"
     
     [<Builtin("function?")>]
-    let function_check = typeCheck "function"
+    static member function_check = Builtins.typeCheck "function"
     
     [<Builtin("array!")>]
-    let array_unwrap = typeUnwrap "array"
+    static member array_unwrap = Builtins.typeUnwrap "array"
     
     [<Builtin("array?")>]
-    let array_check = typeCheck "array"
+    static member array_check = Builtins.typeCheck "array"
     
     [<Builtin("print")>]
-    let print = Func(fun v ->
+    static member print = Func(fun v ->
         printf "%s" (v.ToString())
         Unit
     )
     
     [<Builtin("printn")>]
-    let printn = Func(fun v ->
+    static member printn = Func(fun v ->
         printfn "%s" (v.ToString())
         Unit
     )
 
     [<Builtin("+")>]
-    let add = Func(fun a ->
+    static member add = Func(fun a ->
         Func(fun b ->
             match a, b with
             | Int(x), Int(y) -> Int(x+y)
@@ -93,7 +107,7 @@ module Builtins =
     )
     
     [<Builtin("-")>]
-    let subtr = Func(fun a ->
+    static member subtr = Func(fun a ->
         Func(fun b ->
             match a, b with
             | Int(x), Int(y) -> Int(x-y)
@@ -105,7 +119,7 @@ module Builtins =
     )
 
     [<Builtin("*")>]
-    let times = Func(fun a ->
+    static member times = Func(fun a ->
         Func(fun b ->
             match a, b with
             | Int(x), Int(y) -> Int(x*y)
@@ -117,7 +131,7 @@ module Builtins =
     )
 
     [<Builtin("/")>]
-    let div = Func(fun a ->
+    static member div = Func(fun a ->
         Func(fun b ->
             match a, b with
             | Int(x), Int(y) -> Int(x/y)
@@ -129,11 +143,11 @@ module Builtins =
     )
     
     [<Builtin("<=")>]
-    let leq = Func(fun a ->
+    static member leq = Func(fun a ->
         Func(fun b ->
             match a, b with
-            | Int(x), Int(y) -> church (x <= y)
-            | Float(x), Float(y) -> church (x <= y)
+            | Int(x), Int(y) -> Builtins.church (x <= y)
+            | Float(x), Float(y) -> Builtins.church (x <= y)
             | Int(x), _ -> typeFail "int" (b.Typename)
             | Float(x), _ -> typeFail "float" (b.Typename)
             | _ -> typeFail "int" (a.Typename)

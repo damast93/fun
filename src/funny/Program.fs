@@ -9,17 +9,17 @@ type Interactive() =
 
     member this.LoadFile(fn) = 
         printfn "[Loading %s ...]" fn
-        let contents = System.IO.File.ReadAllText(fn)
+        try
+            let contents = System.IO.File.ReadAllText(fn)
 
-        match Parser.parseModule contents with
-        | Parser.Error(err) ->
-            printfn "%s\n" err
-        | Parser.Successful(mdl) -> 
-            try
+            match Parser.parseModule contents with
+            | Parser.Error(err) ->
+                printfn "%s\n" err
+            | Parser.Successful(mdl) -> 
                 interpreter.LoadModule(mdl)
                 printfn "[Loaded %s, %i definitions, %i user types]" fn (List.length mdl.definitions) (List.length mdl.usertypes)
-            with ex ->
-                printfn "!> %s" (ex.Message)
+        with ex ->
+            printfn "!> %s" (ex.Message)
 
     member this.RunLine(line) =
         match Parser.parseExpression line with

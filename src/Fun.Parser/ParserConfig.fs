@@ -2,8 +2,7 @@
 
 open FParsec
 
-// Whitespace & comment management, thanks to
-// http://stackoverflow.com/questions/8405032
+// Whitespace & comment management
 
 let whitespaceChars = [' '; '\t'; '\n'; '\r']
 let spaceStr : Parser<string,unit> = anyOf whitespaceChars |>> string 

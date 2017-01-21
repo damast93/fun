@@ -6,6 +6,8 @@ open Fun.Interpreter.Runtime
 
 type internal V = Fun.Semantics.Value
 
+// TODO Allow loading of standard library without showing up in `definitions`
+
 type Interpreter() as this = 
 
     let mutable userTypes = Set.empty
@@ -14,15 +16,15 @@ type Interpreter() as this =
     let mutable globals = Context.empty
 
     do
-        userTypes <- Set.ofSeq Builtins.builtin_types
-        for typename in Builtins.builtin_types do
-            this.AddType(typename)
+        userTypes <- Set.ofSeq Builtins.BuiltinTypes
 
-            globals <- Context.define "true" Builtins.bool_true globals
-            globals <- Context.define "false" Builtins.bool_false globals
-            globals <- Context.define "unit!" Builtins.unit_unwrap globals
-            globals <- Context.define "unit?" Builtins.unit_check globals
-            globals <- Context.define "print" Builtins.print globals
+        Builtins.BuiltinTypes 
+        |> Seq.iter this.AddType
+
+        Builtins.GetBuiltins()
+        |> Map.iter (fun name f ->
+            globals <- Context.define name f globals
+        )
 
     member this.UserTypes = userTypes |> Set.toSeq
     member this.Definitions = definitions |> Set.toSeq
