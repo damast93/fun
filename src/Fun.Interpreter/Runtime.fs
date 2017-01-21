@@ -34,3 +34,8 @@ module Builtins =
 
     let unit_unwrap = typeUnwrap "unit"
     let unit_check = typeCheck "unit"
+
+    let print = Func(fun v ->
+        printf "%s" (v.ToString())
+        Unit
+    )

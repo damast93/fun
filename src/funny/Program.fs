@@ -44,13 +44,15 @@ type Interactive() =
 
     member this.PerformOption(option) = 
         match option with
-        | "q" -> () 
-        | "b" -> 
+        | option when "quit".StartsWith(option) -> () 
+        | option when "browse".StartsWith(option) || "info".StartsWith(option) -> 
             printfn "Types:\n%s\n" (String.concat ", " interpreter.UserTypes)
             printfn "Globals:\n%s" (String.concat ", " interpreter.Definitions)
             this.Repl()
-        | "l" | "m" ->
-            printfn "Load da shit"
+        | option when List.exists (option.StartsWith) ["l ";"load "; "m "; "module "] ->
+            let index = option.IndexOf(" ")
+            let fn = option.Substring(index).Trim()
+            this.LoadFile(fn)
             this.Repl()
         | _ ->
             printfn "Unrecognized option"

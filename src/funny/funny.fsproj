@@ -56,6 +56,10 @@
       <Link>core.fun</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="..\..\test\test.fun">
+      <Link>test.fun</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Fun.Interpreter\Fun.Interpreter.fsproj">

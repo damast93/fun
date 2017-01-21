@@ -4,7 +4,7 @@ open Fun.Syntax
 open Fun.Interpreter.Context
 open Fun.Interpreter.Runtime
 
-type V = Fun.Semantics.Value
+type internal V = Fun.Semantics.Value
 
 type Interpreter() as this = 
 
@@ -22,6 +22,7 @@ type Interpreter() as this =
             globals <- Context.define "false" Builtins.bool_false globals
             globals <- Context.define "unit!" Builtins.unit_unwrap globals
             globals <- Context.define "unit?" Builtins.unit_check globals
+            globals <- Context.define "print" Builtins.print globals
 
     member this.UserTypes = userTypes |> Set.toSeq
     member this.Definitions = definitions |> Set.toSeq
