@@ -11,15 +11,20 @@ open Fun.Parser.Config
 
 let keywords = [ "let"; "letrec"; "in"; "fun"; "data"; "="; "." ] |> Set.ofList
 
+let firstChar = isLetter
+let consecutiveChar = isNoneOf "\()[].,;{}\" \t\r\n"
+let operatorChar = isAnyOf "+-*/.<>=%$§°!?`^#'_|&"
+
+let normalIdent = many1Satisfy2 firstChar consecutiveChar .>> ws
+let parentizedSpecial =  strws "(" >>. many1Satisfy operatorChar .>> strws ")"
+
 let ident = 
     attempt (parsec {
-        let fstDigitParser = isNoneOf "\(){}[];,.$\"0123456789 \t\r\n"
-        let! str = many1Satisfy2 fstDigitParser (isNoneOf "\()[].,;{}\" \t\r\n") .>> ws
+        let! str = normalIdent <|> parentizedSpecial
         if keywords |> Set.contains str
-          then return! fail("Reserved keyword")
-          else return str
+            then return! fail("Reserved keyword")
+            else return str
     }) <?> "identifier"
-
 
 // Literals
 

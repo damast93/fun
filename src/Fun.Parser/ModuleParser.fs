@@ -7,8 +7,10 @@ open FParsec
 
 // Parsing a whole module
 
-// TODO Work out a good definition of typenames (Start with uppercase! (otherwise conflict with builtins)
-let typename = many1Chars letter .>> ws
+// Typenames start with uppercase letters
+let firstChar = isUpper
+let consecutiveChar t = (isLetter t) || (isDigit t) || (isAnyOf "_" t)
+let typename = many1Satisfy2 firstChar consecutiveChar .>> ws
 
 let funDefinition = parsec {
     let! lhs = strws1 "fun" >>. arglist .>> strws "="
