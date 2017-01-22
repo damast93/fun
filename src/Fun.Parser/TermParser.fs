@@ -13,7 +13,7 @@ let keywords = [ "let"; "letrec"; "in"; "fun"; "data"; "="; "." ] |> Set.ofList
 
 let firstChar = isLetter
 let consecutiveChar = isNoneOf "\()[].,;{}\" \t\r\n"
-let operatorChar = isAnyOf "+-*/.<>=%$§°!?`^#'_|&"
+let operatorChar = isAnyOf "+-*/.<>=%$§°!?~`^#'_|&"
 
 let operator = attempt ((many1Satisfy operatorChar) .>> ws)
 

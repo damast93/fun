@@ -94,6 +94,25 @@ type Builtins() =
         Unit
     )
 
+    [<Builtin("str")>]
+    static member tostring = Func(fun v -> 
+        String(v.ToString())
+    )
+
+    [<Builtin("int")>]
+    static member toint = Func(fun v ->
+        match v with
+        | String(n) -> Int(int n)
+        | _ -> typeFail "string" (v.Typename)
+    )
+
+    [<Builtin("readline")>]
+    static member readline = Func(fun v ->
+         ofType "unit" v |> ignore
+         let line = Console.ReadLine()
+         String(line)
+    )
+
     [<Builtin("+")>]
     static member add = Func(fun a ->
         Func(fun b ->
@@ -142,6 +161,26 @@ type Builtins() =
         )
     )
     
+    [<Builtin("^")>]
+    static member exp = Func(fun a ->
+        Func(fun b ->
+            match a, b with
+            | Int(x), Int(y) -> Int(pown x y)
+            | Float(x), Float(y) -> Float(x**y)
+            | Int(x), _ -> typeFail "int" (b.Typename)
+            | Float(x), _ -> typeFail "float" (b.Typename)
+            | _ -> typeFail "int" (a.Typename)
+        )
+    )
+
+    [<Builtin("mod")>]
+    static member modulo = Func(fun a ->
+        Func(fun b ->
+            match ofType "int" a, ofType "int" b with
+            | Int(x), Int(y) -> Int(x % y)
+        )
+    )
+
     [<Builtin("<=")>]
     static member leq = Func(fun a ->
         Func(fun b ->
@@ -152,4 +191,19 @@ type Builtins() =
             | Float(x), _ -> typeFail "float" (b.Typename)
             | _ -> typeFail "int" (a.Typename)
         )
+    )
+    
+    [<Builtin("==")>]
+    static member eq = Func(fun a ->
+        Func(fun b ->
+            match a, b with
+            | Int(x), Int(y) -> Builtins.church ((x = y))
+            | Float(x), Float(y) -> Builtins.church ((x = y))
+            | _ -> equalityUndefined (a.Typename) (b.Typename)
+        )
+    )
+
+    [<Builtin("error")>]
+    static member error = Func(fun msg ->
+        failwithf "Runtime error: `%A`" (msg.ToString())
     )
