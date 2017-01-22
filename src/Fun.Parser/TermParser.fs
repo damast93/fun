@@ -15,12 +15,14 @@ let firstChar = isLetter
 let consecutiveChar = isNoneOf "\()[].,;{}\" \t\r\n"
 let operatorChar = isAnyOf "+-*/.<>=%$§°!?`^#'_|&"
 
+let operator = attempt ((many1Satisfy operatorChar) .>> ws)
+
 let normalIdent = many1Satisfy2 firstChar consecutiveChar .>> ws
-let parentizedSpecial =  strws "(" >>. many1Satisfy operatorChar .>> strws ")"
+let parentizedOperator =  strws "(" >>. operator .>> strws ")"
 
 let ident = 
     attempt (parsec {
-        let! str = normalIdent <|> parentizedSpecial
+        let! str = normalIdent <|> parentizedOperator
         if keywords |> Set.contains str
             then return! fail("Reserved keyword")
             else return str
@@ -50,14 +52,21 @@ let lambda = parsec {
     return Lambda(args, body)
 }
 
-let application = 
+let applications = 
     many1 atom |>> function
         | [x] -> x
         | ls -> Application(ls)
 
+let arithmetic = parsec {
+    let! op1 = applications
+    let! summands = many (operator .>>. applications)
+    let expr = List.fold (fun lhs (op, rhs) -> Application([Identifier(op); lhs; rhs])) op1 summands
+    return expr
+}
+
 let letExpr = parsec {
     let! lhs = strws1 "let" >>. arglist .>> strws "="
-    let! rhs = (lambda <|> application) .>> strws1 "in"
+    let! rhs = (lambda <|> arithmetic) .>> strws1 "in"
     let! body = term
     match lhs with
     | f::args -> return Let(f,args,rhs,body)
@@ -65,14 +74,14 @@ let letExpr = parsec {
 
 let letRecExpr = parsec {
     let! lhs = strws1 "letrec" >>. arglist .>> strws "="
-    let! rhs = (lambda <|> application) .>> strws1 "in"
+    let! rhs = (lambda <|> arithmetic) .>> strws1 "in"
     let! body = term
     match lhs with
     | f::args -> return LetRec(f,args,rhs,body)
 }
 
 let sequence =
-    sepBy1 (application <|> lambda <|> letRecExpr <|> letExpr) (strws ";") |>> function
+    sepBy1 (arithmetic <|> lambda <|> letRecExpr <|> letExpr) (strws ";") |>> function
         | [x] -> x
         | ls -> Sequence(ls)
 

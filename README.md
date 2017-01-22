@@ -22,12 +22,12 @@ Both `funny` and the first-stage of `func` are implemented in F#. The second-sta
     // Good old functional quick sort
 
     fun quicksort list = 
-        if (<= (length list) 1)
+        if (length list <= 1)
           { list }
           { let pivot = head list in 
             let rest  = tail list in 
-            let left  = filter (> pivot) rest in
-            let right = filter (<= pivot) rest in
+            let left  = filter (\x . x < pivot) rest in
+            let right = filter (\x . x >= pivot) rest in
             concat (quicksort left) (cons pivot (quicksort right))
           }
         
@@ -60,20 +60,30 @@ and
 For recursive nested functions, there is `letrec`
 
     letrec fact n = 
-        if (< n 1) 
+        if (n < 1) 
             { 1 }
-            {  * n (fact (- n 1)) }
+            {  n * (fact (n - 1)) }
     in fact 5
 
 Top-Level definitions can be made with the keyword `fun`
 
-    fun isPrime n = forall (\d . != 0 (mod n d)) (range 2 (- n 1))
+    fun isPrime n = forall (\d . (mod n d) != 0) (range 2 (- n 1))
 
-Recursion, including mutual recursion, is automatically allowed on top-level. *Fun*'s syntax is free form, excess whitespace is insignificant and there is no distinction between function and operator names, so
+Recursion, including mutual recursion, is automatically allowed on top-level. *Fun*'s syntax is free form, excess whitespace is insignificant.
 
-    fun plus = +
+Variable names can be almost arbitrary, with the restriction that they either have to start with a letter or be pure symbols. To refer to a name of pure symbols, we need parenthesis, but we can be use infix operator syntax.
 
-is perfectly fine. On the downside, this means that there is no inherent support for infix operator placement. Comments are C-style, i.e.
+    fun tree-depth = ... // perfectly fine name
+
+    fun (<=) a b = (a < b) || (a == b)
+
+    let (+) = (*) in 2 + 4 // produces 8
+
+Be aware that there is currently no support for operator precedence, operators strictly associate to the left. So 
+
+    2 + 3 * 4 == 20
+
+This might change in the future, but better put parenthesis. Comments are C-style, i.e.
 
     // Comment-line
     /* block

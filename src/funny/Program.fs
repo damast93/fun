@@ -62,6 +62,7 @@ type Interactive() =
 let main() =
     let args = Environment.GetCommandLineArgs() 
     let interactive = new Interactive()
+
     printf "Funny - Fun interactive interpreter\n"
 
     match args with

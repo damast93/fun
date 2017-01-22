@@ -14,7 +14,7 @@ let typename = many1Satisfy2 firstChar consecutiveChar .>> ws
 
 let funDefinition = parsec {
     let! lhs = strws1 "fun" >>. arglist .>> strws "="
-    let! rhs = lambda <|> application
+    let! rhs = term
     match lhs with
     | f::args -> return Fun(f,args,rhs)
 }
