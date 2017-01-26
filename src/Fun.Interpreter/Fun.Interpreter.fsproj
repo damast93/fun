@@ -47,6 +47,7 @@
     <Compile Include="Exceptions.fs" />
     <Compile Include="Context.fs" />
     <Compile Include="Runtime.fs" />
+    <Compile Include="DependencyChecker.fs" />
     <Compile Include="Evaluation.fs" />
     <Compile Include="Interpreter.fs" />
   </ItemGroup>

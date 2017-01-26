@@ -44,7 +44,6 @@ type Interpreter() as this =
         mdl.usertypes |> List.iter (this.AddType)
         this.LoadDefinitions(mdl.definitions)
 
-
     member private this.AddType(typename) = 
         userTypes <- Set.add typename userTypes
 
@@ -66,7 +65,7 @@ type Interpreter() as this =
 
         // Evaluate and assign functions
         for (Fun(fn,body)) in defs do
-            let f = Evaluation.eval globals body
+            let f = this.Evaluate body
             Context.updateRef fn f globals
 
         // Remember the definitions
@@ -74,4 +73,17 @@ type Interpreter() as this =
             definitions <- Set.add fn definitions
 
     member this.Evaluate(expr : Expression) = 
+        let globalsSet = globals.definitions |> Map.toSeq |> Seq.map (fun (k,t) -> k) |> Set.ofSeq
+        let unresolved = 
+            DependencyChecker.unresolved globalsSet Set.empty expr
+            |> List.groupBy (fun s -> s)
+            |> List.map (fun (v,gp) -> (v, List.length gp))
+
+        if not (List.isEmpty unresolved) then
+            let errors = [
+                    for (v,num) in unresolved do
+                        yield sprintf "unresolved identifier `%s` (%i occurrences)" v num
+            ]
+            failwith (String.concat "\n" errors)
+
         Evaluation.eval globals expr
